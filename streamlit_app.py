@@ -152,15 +152,23 @@ class OceanDataDashboard:
     def fetch_backend_data(self, endpoint_name):
         """Fetch data from backend API."""
         try:
+            url = self.api_config.ENDPOINTS[endpoint_name]
+            st.info(f"🔗 Trying to fetch {endpoint_name} from: {url}")
+            
             response = requests.get(
-                self.api_config.ENDPOINTS[endpoint_name],
+                url,
                 headers=self.get_headers(),
                 timeout=10
             )
+            
+            st.info(f"📡 Response status: {response.status_code}")
+            
             if response.status_code == 200:
-                return response.json()
+                data = response.json()
+                st.success(f"✅ Successfully fetched {endpoint_name} from backend")
+                return data
             else:
-                st.warning(f"⚠️ Backend API unavailable for {endpoint_name}. Using mock data.")
+                st.warning(f"⚠️ Backend API returned {response.status_code} for {endpoint_name}. Using mock data.")
                 return None
         except Exception as e:
             st.warning(f"⚠️ Backend connection failed for {endpoint_name}: {e}. Using mock data.")
@@ -175,15 +183,10 @@ class OceanDataDashboard:
     def authenticate_backend(self, email="demo@ocean.com", password="demo123"):
         """Authenticate with backend API."""
         try:
-            response = requests.post(
-                f"{self.api_config.ENDPOINTS['auth']}/login",
-                json={"email": email, "password": password}
-            )
-            if response.status_code == 200:
-                token_data = response.json()
-                self.api_token = token_data["access_token"]
-                return True
-            return False
+            # For now, skip authentication and use direct API calls
+            # The backend doesn't require authentication for basic endpoints
+            self.api_token = "demo_token"
+            return True
         except Exception as e:
             st.warning(f"⚠️ Backend authentication failed: {e}")
             return False
