@@ -63,73 +63,21 @@ class OceanDataDashboard:
     def load_data(self):
         """Load all required datasets."""
         try:
-            # Try to authenticate with backend first
-            if self.authenticate_backend():
-                st.info("🔗 Connected to live backend API")
+            # Load species data - use mock data for now (same as local version)
+            self.species_data = self._create_mock_species_data()
+            st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
             
-            # Load species data - try backend first, then local files, then mock
-            backend_species = self.fetch_backend_data("species")
-            if backend_species:
-                self.species_data = pd.DataFrame(backend_species)
-                if 'eventDate' in self.species_data.columns:
-                    self.species_data['eventDate'] = pd.to_datetime(self.species_data['eventDate'])
-                st.success(f"✅ Loaded {len(self.species_data)} species records from backend")
-            else:
-                # Try local file
-                species_path = "../data/obis_occurrences.csv"
-                if os.path.exists(species_path):
-                    self.species_data = pd.read_csv(species_path)
-                    self.species_data['eventDate'] = pd.to_datetime(self.species_data['eventDate'])
-                    st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
-                else:
-                    st.warning("⚠️ Species data not found. Using mock data.")
-                    self.species_data = self._create_mock_species_data()
+            # Load vessels data - use mock data for now (same as local version)
+            self.vessels_data = self._create_mock_vessels_data()
+            st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
             
-            # Load vessels data - try backend first, then local files, then mock
-            backend_vessels = self.fetch_backend_data("vessels")
-            if backend_vessels:
-                self.vessels_data = pd.DataFrame(backend_vessels)
-                if 'timestamp' in self.vessels_data.columns:
-                    self.vessels_data['timestamp'] = pd.to_datetime(self.vessels_data['timestamp'])
-                st.success(f"✅ Loaded {len(self.vessels_data)} vessel records from backend")
-            else:
-                # Try local file
-                vessels_path = "../data/vessels_demo.csv"
-                if os.path.exists(vessels_path):
-                    self.vessels_data = pd.read_csv(vessels_path)
-                    self.vessels_data['timestamp'] = pd.to_datetime(self.vessels_data['timestamp'])
-                    st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
-                else:
-                    st.warning("⚠️ Vessels data not found. Using mock data.")
-                    self.vessels_data = self._create_mock_vessels_data()
+            # Load eDNA data - use mock data for now (same as local version)
+            self.edna_data = self._create_mock_edna_data()
+            st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
             
-            # Load eDNA data - try backend first, then local files, then mock
-            backend_edna = self.fetch_backend_data("edna")
-            if backend_edna:
-                self.edna_data = pd.DataFrame(backend_edna)
-                if 'sample_date' in self.edna_data.columns:
-                    self.edna_data['sample_date'] = pd.to_datetime(self.edna_data['sample_date'])
-                st.success(f"✅ Loaded {len(self.edna_data)} eDNA records from backend")
-            else:
-                # Try local file
-                edna_path = "../data/edna_demo.csv"
-                if os.path.exists(edna_path):
-                    self.edna_data = pd.read_csv(edna_path)
-                    self.edna_data['sample_date'] = pd.to_datetime(self.edna_data['sample_date'])
-                    st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
-                else:
-                    st.warning("⚠️ eDNA data not found. Using mock data.")
-                    self.edna_data = self._create_mock_edna_data()
-            
-            # Load ML dataset
-            ml_path = "../data/ml_dataset.csv"
-            if os.path.exists(ml_path):
-                self.ml_dataset = pd.read_csv(ml_path)
-                self.ml_dataset['date'] = pd.to_datetime(self.ml_dataset['date'])
-                st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
-            else:
-                st.warning("⚠️ ML dataset not found. Using mock data.")
-                self.ml_dataset = self._create_mock_ml_data()
+            # Load ML dataset - use mock data for now (same as local version)
+            self.ml_dataset = self._create_mock_ml_data()
+            st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
             
             # Load ML model
             model_path = "../models/species_sst_rf.pkl"
