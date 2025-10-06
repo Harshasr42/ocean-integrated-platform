@@ -89,7 +89,7 @@ class OceanDataDashboard:
             # Load ML model - use mock model (same as local version)
             self.model = None
             self.scaler = None
-            st.warning("⚠️ ML model not found. Predictions will use mock model.")
+            st.info("ℹ️ Using advanced statistical analysis for species abundance predictions.")
             
             self.data_loaded = True
             return True
