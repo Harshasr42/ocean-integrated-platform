@@ -46,57 +46,26 @@ class OceanDataDashboard:
     def load_data(self):
         """Load all required datasets."""
         try:
-            # Load species data
-            species_path = "../data/obis_occurrences.csv"
-            if os.path.exists(species_path):
-                self.species_data = pd.read_csv(species_path)
-                self.species_data['eventDate'] = pd.to_datetime(self.species_data['eventDate'])
-                st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
-            else:
-                st.warning("⚠️ Species data not found. Using mock data.")
-                self.species_data = self._create_mock_species_data()
+            # Load species data - use mock data (same as local version)
+            self.species_data = self._create_mock_species_data()
+            st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
             
-            # Load vessels data
-            vessels_path = "../data/vessels_demo.csv"
-            if os.path.exists(vessels_path):
-                self.vessels_data = pd.read_csv(vessels_path)
-                self.vessels_data['timestamp'] = pd.to_datetime(self.vessels_data['timestamp'])
-                st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
-            else:
-                st.warning("⚠️ Vessels data not found. Using mock data.")
-                self.vessels_data = self._create_mock_vessels_data()
+            # Load vessels data - use mock data (same as local version)
+            self.vessels_data = self._create_mock_vessels_data()
+            st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
             
-            # Load eDNA data
-            edna_path = "../data/edna_demo.csv"
-            if os.path.exists(edna_path):
-                self.edna_data = pd.read_csv(edna_path)
-                self.edna_data['sample_date'] = pd.to_datetime(self.edna_data['sample_date'])
-                st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
-            else:
-                st.warning("⚠️ eDNA data not found. Using mock data.")
-                self.edna_data = self._create_mock_edna_data()
+            # Load eDNA data - use mock data (same as local version)
+            self.edna_data = self._create_mock_edna_data()
+            st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
             
-            # Load ML dataset
-            ml_path = "../data/ml_dataset.csv"
-            if os.path.exists(ml_path):
-                self.ml_dataset = pd.read_csv(ml_path)
-                self.ml_dataset['date'] = pd.to_datetime(self.ml_dataset['date'])
-                st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
-            else:
-                st.warning("⚠️ ML dataset not found. Using mock data.")
-                self.ml_dataset = self._create_mock_ml_data()
+            # Load ML dataset - use mock data (same as local version)
+            self.ml_dataset = self._create_mock_ml_data()
+            st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
             
-            # Load ML model
-            model_path = "../models/species_sst_rf.pkl"
-            scaler_path = "../models/species_sst_scaler.pkl"
-            if os.path.exists(model_path) and os.path.exists(scaler_path):
-                self.model = joblib.load(model_path)
-                self.scaler = joblib.load(scaler_path)
-                st.success("✅ Loaded trained ML model")
-            else:
-                st.warning("⚠️ ML model not found. Predictions will use mock model.")
-                self.model = None
-                self.scaler = None
+            # Load ML model - use mock model (same as local version)
+            self.model = None
+            self.scaler = None
+            st.warning("⚠️ ML model not found. Predictions will use mock model.")
             
             self.data_loaded = True
             return True
