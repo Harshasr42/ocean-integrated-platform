@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# API Configuration - Same as fisherman dashboard
+# API Configuration - Same as fisherman dashboard (Updated for deployment)
 class APIConfig:
     API_BASE_URL = os.getenv("API_BASE_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
     PREDICT_API_URL = os.getenv("PREDICT_API_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
