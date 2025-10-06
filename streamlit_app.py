@@ -23,13 +23,14 @@ warnings.filterwarnings('ignore')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# API Configuration for Backend Integration
+# API Configuration - Same as fisherman dashboard
 class APIConfig:
-    API_BASE_URL = os.getenv("API_BASE_URL", "https://ocean-mvp-backend.onrender.com")
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
+    PREDICT_API_URL = os.getenv("PREDICT_API_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
     
     ENDPOINTS = {
         "species": f"{API_BASE_URL}/api/species",
-        "vessels": f"{API_BASE_URL}/api/vessels", 
+        "vessels": f"{API_BASE_URL}/api/vessels",
         "edna": f"{API_BASE_URL}/api/edna",
         "catch_reports": f"{API_BASE_URL}/api/catch-reports",
         "predict": f"{API_BASE_URL}/api/predict",
@@ -150,25 +151,17 @@ class OceanDataDashboard:
             return False
     
     def fetch_backend_data(self, endpoint_name):
-        """Fetch data from backend API."""
+        """Fetch data from backend API - same as fisherman dashboard."""
         try:
-            url = self.api_config.ENDPOINTS[endpoint_name]
-            st.info(f"🔗 Trying to fetch {endpoint_name} from: {url}")
-            
             response = requests.get(
-                url,
+                self.api_config.ENDPOINTS[endpoint_name],
                 headers=self.get_headers(),
                 timeout=10
             )
-            
-            st.info(f"📡 Response status: {response.status_code}")
-            
             if response.status_code == 200:
-                data = response.json()
-                st.success(f"✅ Successfully fetched {endpoint_name} from backend")
-                return data
+                return response.json()
             else:
-                st.warning(f"⚠️ Backend API returned {response.status_code} for {endpoint_name}. Using mock data.")
+                st.warning(f"⚠️ Backend API unavailable for {endpoint_name}. Using mock data.")
                 return None
         except Exception as e:
             st.warning(f"⚠️ Backend connection failed for {endpoint_name}: {e}. Using mock data.")
@@ -181,15 +174,24 @@ class OceanDataDashboard:
         return {}
     
     def authenticate_backend(self, email="demo@ocean.com", password="demo123"):
-        """Authenticate with backend API."""
+        """Authenticate with backend API - same as fisherman dashboard."""
         try:
-            # For now, skip authentication and use direct API calls
-            # The backend doesn't require authentication for basic endpoints
+            response = requests.post(
+                f"{self.api_config.ENDPOINTS['auth']}/login",
+                json={"email": email, "password": password}
+            )
+            if response.status_code == 200:
+                token_data = response.json()
+                self.api_token = token_data["access_token"]
+                return True
+            else:
+                st.warning("⚠️ Backend authentication failed. Using direct API calls.")
+                self.api_token = "demo_token"
+                return True
+        except Exception as e:
+            st.warning(f"⚠️ Backend authentication failed: {e}. Using direct API calls.")
             self.api_token = "demo_token"
             return True
-        except Exception as e:
-            st.warning(f"⚠️ Backend authentication failed: {e}")
-            return False
     
     def _create_mock_species_data(self):
         """Create mock species data for demonstration."""
