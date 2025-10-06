@@ -110,8 +110,8 @@ class OceanDataDashboard:
         for i in range(n_records):
             data.append({
                 'species': np.random.choice(species_list),
-                'decimalLatitude': np.random.uniform(12.5, 13.2),
-                'decimalLongitude': np.random.uniform(77.1, 77.9),
+                'decimalLatitude': np.random.uniform(8.0, 15.0),  # Ocean coordinates (Arabian Sea)
+                'decimalLongitude': np.random.uniform(70.0, 80.0),  # Ocean coordinates (Arabian Sea)
                 'eventDate': pd.date_range('2023-01-01', '2023-12-31', freq='D')[np.random.randint(0, 365)],
                 'individualCount': np.random.randint(1, 6),
                 'phylum': 'Chordata',
@@ -136,8 +136,8 @@ class OceanDataDashboard:
         for i in range(n_records):
             data.append({
                 'vessel_id': np.random.choice(vessel_ids),
-                'latitude': np.random.uniform(12.5, 13.2),
-                'longitude': np.random.uniform(77.1, 77.9),
+                'latitude': np.random.uniform(8.0, 15.0),  # Ocean coordinates (Arabian Sea)
+                'longitude': np.random.uniform(70.0, 80.0),  # Ocean coordinates (Arabian Sea)
                 'timestamp': pd.date_range('2023-01-01', '2023-12-31', freq='D')[np.random.randint(0, 365)],
                 'catch_kg': np.random.uniform(50, 300),
                 'gear_type': np.random.choice(gear_types),
@@ -155,8 +155,8 @@ class OceanDataDashboard:
         for i in range(n_records):
             data.append({
                 'sample_id': f'EDNA{i+1:03d}',
-                'location_lat': np.random.uniform(12.5, 13.2),
-                'location_lon': np.random.uniform(77.1, 77.9),
+                'location_lat': np.random.uniform(8.0, 15.0),  # Ocean coordinates (Arabian Sea)
+                'location_lon': np.random.uniform(70.0, 80.0),  # Ocean coordinates (Arabian Sea)
                 'sample_date': pd.date_range('2023-01-01', '2023-12-31', freq='D')[np.random.randint(0, 365)],
                 'biodiversity_index': np.random.uniform(0.6, 0.9),
                 'species_richness': np.random.randint(8, 20),
@@ -196,12 +196,13 @@ class OceanDataDashboard:
             return
         
         # Create map
-        center_lat = self.species_data['decimalLatitude'].mean()
-        center_lon = self.species_data['decimalLongitude'].mean()
+        # Set map center to Arabian Sea (ocean area)
+        center_lat = 11.5  # Arabian Sea coordinates
+        center_lon = 75.0   # Arabian Sea coordinates
         
         m = folium.Map(
             location=[center_lat, center_lon],
-            zoom_start=10,
+            zoom_start=7,  # Zoom out to show more ocean area
             tiles='OpenStreetMap'
         )
         
