@@ -14,7 +14,6 @@ from streamlit_folium import st_folium
 import joblib
 import os
 import logging
-import requests
 from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
@@ -22,20 +21,6 @@ warnings.filterwarnings('ignore')
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# API Configuration - Same as fisherman dashboard (Updated for deployment)
-class APIConfig:
-    API_BASE_URL = os.getenv("API_BASE_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
-    PREDICT_API_URL = os.getenv("PREDICT_API_URL", "https://ocean-mvp-backend.onrender.com")  # Live backend URL
-    
-    ENDPOINTS = {
-        "species": f"{API_BASE_URL}/api/species",
-        "vessels": f"{API_BASE_URL}/api/vessels",
-        "edna": f"{API_BASE_URL}/api/edna",
-        "catch_reports": f"{API_BASE_URL}/api/catch-reports",
-        "predict": f"{API_BASE_URL}/api/predict",
-        "auth": f"{API_BASE_URL}/api/auth"
-    }
 
 # Page configuration
 st.set_page_config(
@@ -57,27 +42,49 @@ class OceanDataDashboard:
         self.ml_dataset = None
         self.model = None
         self.scaler = None
-        self.api_config = APIConfig()
-        self.api_token = None
         
     def load_data(self):
         """Load all required datasets."""
         try:
-            # Load species data - use mock data for now (same as local version)
-            self.species_data = self._create_mock_species_data()
-            st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
+            # Load species data
+            species_path = "../data/obis_occurrences.csv"
+            if os.path.exists(species_path):
+                self.species_data = pd.read_csv(species_path)
+                self.species_data['eventDate'] = pd.to_datetime(self.species_data['eventDate'])
+                st.success(f"✅ Loaded {len(self.species_data)} species occurrence records")
+            else:
+                st.warning("⚠️ Species data not found. Using mock data.")
+                self.species_data = self._create_mock_species_data()
             
-            # Load vessels data - use mock data for now (same as local version)
-            self.vessels_data = self._create_mock_vessels_data()
-            st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
+            # Load vessels data
+            vessels_path = "../data/vessels_demo.csv"
+            if os.path.exists(vessels_path):
+                self.vessels_data = pd.read_csv(vessels_path)
+                self.vessels_data['timestamp'] = pd.to_datetime(self.vessels_data['timestamp'])
+                st.success(f"✅ Loaded {len(self.vessels_data)} vessel tracking records")
+            else:
+                st.warning("⚠️ Vessels data not found. Using mock data.")
+                self.vessels_data = self._create_mock_vessels_data()
             
-            # Load eDNA data - use mock data for now (same as local version)
-            self.edna_data = self._create_mock_edna_data()
-            st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
+            # Load eDNA data
+            edna_path = "../data/edna_demo.csv"
+            if os.path.exists(edna_path):
+                self.edna_data = pd.read_csv(edna_path)
+                self.edna_data['sample_date'] = pd.to_datetime(self.edna_data['sample_date'])
+                st.success(f"✅ Loaded {len(self.edna_data)} eDNA records")
+            else:
+                st.warning("⚠️ eDNA data not found. Using mock data.")
+                self.edna_data = self._create_mock_edna_data()
             
-            # Load ML dataset - use mock data for now (same as local version)
-            self.ml_dataset = self._create_mock_ml_data()
-            st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
+            # Load ML dataset
+            ml_path = "../data/ml_dataset.csv"
+            if os.path.exists(ml_path):
+                self.ml_dataset = pd.read_csv(ml_path)
+                self.ml_dataset['date'] = pd.to_datetime(self.ml_dataset['date'])
+                st.success(f"✅ Loaded {len(self.ml_dataset)} ML training records")
+            else:
+                st.warning("⚠️ ML dataset not found. Using mock data.")
+                self.ml_dataset = self._create_mock_ml_data()
             
             # Load ML model
             model_path = "../models/species_sst_rf.pkl"
@@ -97,49 +104,6 @@ class OceanDataDashboard:
         except Exception as e:
             st.error(f"❌ Error loading data: {e}")
             return False
-    
-    def fetch_backend_data(self, endpoint_name):
-        """Fetch data from backend API - same as fisherman dashboard."""
-        try:
-            response = requests.get(
-                self.api_config.ENDPOINTS[endpoint_name],
-                headers=self.get_headers(),
-                timeout=10
-            )
-            if response.status_code == 200:
-                return response.json()
-            else:
-                st.warning(f"⚠️ Backend API unavailable for {endpoint_name}. Using mock data.")
-                return None
-        except Exception as e:
-            st.warning(f"⚠️ Backend connection failed for {endpoint_name}: {e}. Using mock data.")
-            return None
-    
-    def get_headers(self):
-        """Get API headers with authentication token."""
-        if self.api_token:
-            return {"Authorization": f"Bearer {self.api_token}"}
-        return {}
-    
-    def authenticate_backend(self, email="demo@ocean.com", password="demo123"):
-        """Authenticate with backend API - same as fisherman dashboard."""
-        try:
-            response = requests.post(
-                f"{self.api_config.ENDPOINTS['auth']}/login",
-                json={"email": email, "password": password}
-            )
-            if response.status_code == 200:
-                token_data = response.json()
-                self.api_token = token_data["access_token"]
-                return True
-            else:
-                st.warning("⚠️ Backend authentication failed. Using direct API calls.")
-                self.api_token = "demo_token"
-                return True
-        except Exception as e:
-            st.warning(f"⚠️ Backend authentication failed: {e}. Using direct API calls.")
-            self.api_token = "demo_token"
-            return True
     
     def _create_mock_species_data(self):
         """Create mock species data for demonstration."""
